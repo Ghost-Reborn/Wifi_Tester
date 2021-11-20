@@ -9,23 +9,26 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mTestText;
     private WifiManager mWifiManager;
+    private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTestText = findViewById(R.id.temp_text);
-        mTestText.setText("Loading...");
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        listView = findViewById(R.id.wifi_list_view);
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -53,13 +56,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void wifiSuccess(){
         List<ScanResult> wifiList = mWifiManager.getScanResults();
-        for (ScanResult wifi : wifiList){
-            mTestText.setText(wifi.BSSID);
+        ArrayList<String> wifis = new ArrayList<>();
+        for (ScanResult wifi: wifiList){
+            wifis.add(wifi.BSSID);
         }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                MainActivity.this,
+                android.R.layout.simple_list_item_1,
+                wifis
+        );
+        listView.setAdapter(adapter);
     }
 
     private void wifiFail(){
-        mTestText.setText("Failed to connect wifi");
+        Toast.makeText(MainActivity.this, "Failed to connect to wifi", Toast.LENGTH_SHORT).show();
     }
 
 }
